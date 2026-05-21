@@ -1,0 +1,103 @@
+═══════════════════════════════════════════════════════════════════════
+ CHECKLIST — RentaGest en QNAP por GUI (sin terminal)
+═══════════════════════════════════════════════════════════════════════
+
+PARTE 1 ✓ SUPABASE (15 min)
+═══════════════════════════════════════════════════════════════════════
+
+☐ 1. Ir a https://supabase.com → Sign up (gratis)
+☐ 2. Crear proyecto "rentagest" 
+☐ 3. Esperar 2 minutos
+☐ 4. SQL Editor → Pegar supabase/schema.sql → Run
+☐ 5. Authentication → Invite user → tu email
+☐ 6. Revisar email, establecer contraseña
+☐ 7. Settings → API → Copiar tres valores:
+     
+     NEXT_PUBLIC_SUPABASE_URL = ________________________
+     NEXT_PUBLIC_SUPABASE_ANON_KEY = ________________________
+     SUPABASE_SERVICE_ROLE_KEY = ________________________
+
+PARTE 2 ✓ CREAR .env (5 min)
+═══════════════════════════════════════════════════════════════════════
+
+☐ 1. Abre Bloc de notas en Windows
+☐ 2. Pega esto (sustituyendo valores de Supabase):
+
+     NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+     SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...
+     NEXT_PUBLIC_APP_URL=http://192.168.1.100:8090
+     CRON_SECRET=cambiar-por-algo-aleatorio
+
+☐ 3. Guarda como ".env" (todos los archivos, IMPORTANTE!)
+☐ 4. Copia a Escritorio
+
+PARTE 3 ✓ COPIAR AL QNAP (5 min)
+═══════════════════════════════════════════════════════════════════════
+
+☐ 1. Abre Explorador Windows
+☐ 2. Barra de dirección: \\192.168.1.100\ (IP tu QNAP)
+☐ 3. Usuario: admin, Contraseña: tu contraseña QNAP
+☐ 4. Crea carpeta: rentagest
+☐ 5. Copia el archivo .env dentro
+
+   Resultado esperado: \\192.168.1.100\rentagest\.env
+
+PARTE 4 ✓ CONTAINER STATION (30 min build + arranca)
+═══════════════════════════════════════════════════════════════════════
+
+☐ 1. Abre QNAP → Container Station (icono)
+☐ 2. Pestaña "Create" o "Build"
+☐ 3. ☑ Build from Git repository
+☐ 4. URL: https://github.com/tu-usuario/rentagest.git
+☐ 5. Dockerfile path: Dockerfile
+☐ 6. Tag: rentagest:latest
+☐ 7. Pulsa BUILD → espera 20-30 min
+☐ 8. Cuando veas "Build completed successfully":
+       Pestaña "Containers" → Create → rentagest:latest
+☐ 9. Advanced Settings:
+       
+       Environment:
+       ├─ NODE_ENV = production
+       ├─ PORT = 3000
+       ├─ NEXT_PUBLIC_SUPABASE_URL = (de Supabase)
+       ├─ NEXT_PUBLIC_SUPABASE_ANON_KEY = (de Supabase)
+       ├─ SUPABASE_SERVICE_ROLE_KEY = (de Supabase)
+       ├─ NEXT_PUBLIC_APP_URL = http://192.168.1.100:8090
+       └─ CRON_SECRET = (texto aleatorio)
+       
+       Ports:
+       ├─ Container: 3000
+       └─ Host: 8090
+       
+       Volumes:
+       ├─ Container: /app/plantillas
+       └─ Host: /share/homes/admin/rentagest/plantillas
+
+☐ 10. Pulsa CREATE
+☐ 11. Espera a que veas "Running" en rojo
+☐ 12. Abre navegador: http://192.168.1.100:8090
+
+   ✅ ¡LISTO! Deberías ver la pantalla de login
+
+PARTE 5 ✓ PROBAR (5 min)
+═══════════════════════════════════════════════════════════════════════
+
+☐ 1. Email: el que usaste en Supabase
+☐ 2. Contraseña: la que estableciste
+☐ 3. Pulsa Entrar
+☐ 4. Deberías ver el Dashboard
+
+PASOS SIGUIENTES (opcional)
+═══════════════════════════════════════════════════════════════════════
+
+☐ Ver logs si hay error:
+   Containers → Clic derecho en rentagest → View logs
+
+☐ Subir plantilla Word:
+   Sigue las instrucciones en la sección "Módulos" del README
+
+☐ Acceso desde fuera:
+   Abre puerto 8090 en router → accede con IP pública
+
+═══════════════════════════════════════════════════════════════════════

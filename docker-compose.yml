@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+
+  rentagest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rentagest:latest
+    container_name: rentagest
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - CRON_SECRET=${CRON_SECRET}
+    volumes:
+      - plantillas:/app/plantillas
+    expose:
+      - "3000"
+    networks:
+      - red-rentagest
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    container_name: rentagest-nginx
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+      - "8443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/certbot:/var/www/certbot:ro
+    depends_on:
+      - rentagest
+    networks:
+      - red-rentagest
+
+volumes:
+  plantillas:
+
+networks:
+  red-rentagest:
+    driver: bridge
